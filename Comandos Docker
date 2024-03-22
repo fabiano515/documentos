@@ -1,0 +1,142 @@
+# Comandos Docker com exemplos:
+
+#Para instalar o docker
+
+
+curl -fsSL https://get.docker.com | bash
+
+#Verificando a versão
+
+docker version
+
+# Verficica a lista de containers em execução
+
+docker container ls
+
+#Verifica a todos os containers que foram executados e estão em execução
+
+docker container ls -a
+
+#Para provissionar uma imagem com terminal e interatividade (-ti)
+
+docker container run -ti + (nome da imagem)
+
+ex: docker container run -ti ubuntu /bin/bash
+
+#Para sair do container e deixar em execução
+
+Ctrl + p + q
+
+#Para entrar em um container em execução
+
+docker container attach + id ou nome da imagem
+
+docker container attach 
+
+#Para rodar um container de nginx ou apache devemos utilizar o parametro (-d)
+
+docker container run -d nginx
+
+#Para executar comandos no container como daemon
+
+docker container exec -ti + <id do container > +<comando>
+
+ex: docker container exec -ti 97495f09d196 bash ou sh
+      docker conatiner exec -ti 97495f09d196 ls -la /
+
+#Pare inspecionar um container temos o comando
+
+docker container inspect + id ou nome
+
+docker container inspect ubuntu
+
+O comando inspect restorna todas as informações do container, como data de criação execução e todos os 
+detalhes
+
+#Para capturar logs do container:
+
+docker container logs -f + id ou nome
+docker container logs -f centos
+
+#Para verificar a quantidade de recursos utilizados:
+
+docker container stats + id ou nome
+docker container stats silly_joliot
+
+# Para verificar os processos
+
+docker container top silly_joliot
+
+#Para definir a quantidade de memória usamos o parametro -m
+
+docker container run -d -m 128M nginx
+
+#Para definir a quantidade de cpu usamos o parametro --cpus 0.5 (50%) 0.2 (20%) 0.8(80%)
+
+docker container run -d -m 64M --cpus 0.3 nginx
+
+# Para atualizar os parametros de memória e cpu
+
+docker container update --cpus 0.5 + id ou nome do container
+docker container update --cpus 0.25 -m 128M a9351c849c45
+
+#Para listar as imagens baixadas
+docker image ls
+
+#Para criar o Dockerfile dentro de algum diretório
+
+vim Dockerfile
+
+FROM debian (a partir do debian)
+
+LABEL app="" (nome da etiqueta entre aspas)
+ENV FABIANO="" (nome da variável entre aspas)
+
+RUN apt-get update && apt-get install -y stress && apt-get clean (executar os comando entre os &)
+esc:wq
+
+# Para buildar a imagem
+
+docker image build -t nome:versão .#ponto pois o Dockerfile está no diretório atual
+
+## Aula 02 ##
+
+#Volumes do tipo bind:
+
+na montagem do container devemos setar em qual diretório queremos salvar os arquivos criados pela estancia, pois se houver alguma 
+falha no container, não perderemos os arquivos podendo ser aproveitado pelos próximos executados.
+
+tipo bind parametro --mount 
+
+type=bind
+
+src=/localização/do/diretório
+dst=/diretório/que/sera/compartilhad/com/container
+
+ex: mkdir /opt/registry 
+
+docker container run -ti --mount type=bind,src=/opt/registry,dst=/dados debian
+
+Volumes do tipo volume
+
+- Para listar os volumes
+docker volume ls
+
+-Para criar novos volumes
+docker volume create + nome => docker volume create bkp 
+
+-Para criar inspecionar volumes => docker volume isnpect bkp
+todo volume no docker estará disponível em
+
+/var/lib/docker/volumes/nomevolume/_data
+
+Para utilizar o volume criado
+
+docker container run -ti --mount type=volume,src=bkp,dst=/dados debian (imagem)
+
+#Para remover volumes e ou container que não estiver em uso
+
+docker volume prune (remove todos os volumes que não estão sendo 
+utilizados, porém deve ser observado, caso haja alguma informação importante)
+
+docker container prune
