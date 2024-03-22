@@ -1,7 +1,21 @@
-# Comandos Docker com exemplos:
+Para instalar o docker
 
-#Para instalar o docker
 
+https://www.youtube.com/watch?v=wpdcGgRY5kk
+https://github.com/codeedu/wsl2-docker-quickstart
+
+atualizar listas de repositórios e atualiza pacotes e em segui instala os pacotes listados
+
+
+# apt update  && apt upgrade -y && apt install net-tools build-essential curl -y
+
+
+Instala o docker
+
+
+# curl -sSL https://get.docker.com | sh
+
+ou
 
 curl -fsSL https://get.docker.com | bash
 
