@@ -1,0 +1,9 @@
+# Configuração de token
+
+config user local
+
+edit user.name
+
+set userame-sensitivity disable
+
+end
