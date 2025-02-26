@@ -1,0 +1,57 @@
+COMANDOS - ATENDIMENTO CRQ
+
+Extrair o Certificado (.crt) do .p12
+openssl pkcs12 -in original.p12 -passin pass:SENHA -nokeys -out original.crt
+
+Retirar o Cabeçalho do HSM
+sed -e "1;5 d" original.crt >> TP_arquivo.crt
+
+Extrair a chave (.key) do .p12
+openssl pkc12 -in original.p12 -passin pass:SENHA -out original.key -nocerts -passout pass:SENHA
+
+Caso seja necessário trocar a senha:
+cp original.key TP_arquivo.key
+openssl rsa -in TP_arquivo.key -out keynopass.pem
+openssl rsa -in keynopass.pem -des3 -out TP_arquivo.key
+
+####################################
+
+COMANDOS DE LISTAGEM 
+
+.crt - keytool -printcert -v -file arquivo.crt
+.p12 - keytool -list -keystore arquivo.p12 -storetype pkcs12 -v
+.jks - keytool -list -keystore arquivo.jks -v
+
+Listar Chave
+openssl rsa -in arquivo.key check
+
+CONFERIR HASH
+openssl x509 -noout -modulus -in arquivo.crt | openssl md5
+openssl rsa -noout -modulus -in arquivo.key | openssl md5
+
+######################################
+
+CONVERSÕES
+
+De .crt, ou .cer para .p12 (PKCS#12)
+openssl pkcs12 -export -inkey arquivo.key -passin pass:senha -in arquivo.crt -out arquivo.p12 -passout pass:senha -name Server-Cert
+
+De .p12 para .jks
+keytool -importkeystore -srckeystore arquivo.p12 -destkeystore arquivo.jks -srcstoretype pkcs12 -deststoretype jks -srcstorepass senha -deststorepass senha
+
+De .p12 para .db - Database Solares (Tem que inserir as cadeias antes de gerar o .db)
+certutil -A -d . -n "Alias_Cadeia" -t CT,, -i /endereço/onde/está/cadeia/cadeia.crt
+pk12util -i ./arquivo.p12 -d .
+
+De .p12 para IHS (IBM stash) (.kdb .rdb e .sth)
+ikeycmd -keydb -create -db arquivo.kdb -pw senha -expire 694 -stash arquivo.sth
+ikeycmd -cert -export -db arquivo.p12 -pw senha -label server-cert -type pkcs12 -target arquivo.kdb -target_pw senha -target_type cms -encryption strong
+ikeycmd -cert -setxefault -db arquivo.kdb -pw senha -label server-cert
+
+Caso o servidor não possua o pacote ikeycmd, troque o comando por gskcmd
+####################################
+
+CADEIAS -Importar
+.crt - cat AC_Corporativa.crt >> certchain.crt
+.jks - keystore -importcert -alias AC_CorpV4 -file AC_Corporativa.crt -keystore certchain.jks
+.db - certufil -A -d . -n "ACCorporativa CaixaV4" -t CT,, -i AC_Corporativa.crt
